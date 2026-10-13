@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+crossbuild/__init__.py
+crossbuild/cli.py
+crossbuild.egg-info/PKG-INFO
+crossbuild.egg-info/SOURCES.txt
+crossbuild.egg-info/dependency_links.txt
+crossbuild.egg-info/entry_points.txt
+crossbuild.egg-info/top_level.txt

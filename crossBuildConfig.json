@@ -1,0 +1,13 @@
+{
+	"repo": "https://github.com/andrewely8/CrossBuildRN",
+	"default_branch": "main",
+	"workers": {
+		"windows": {
+			"enabled": true
+		},
+		"macos": {
+			"remote_login": "andrewely@10.0.0.131",
+			"workspace": "~/crossbuild-workspace"
+		}
+	}
+}
