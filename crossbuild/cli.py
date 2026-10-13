@@ -5,6 +5,26 @@ import json
 import shlex
 
 
+def get_repo_root(project_path):
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=project_path,
+        capture_output=True,
+        text=True,
+        check=True
+    )
+
+    return Path(result.stdout.strip())
+
+
+def get_relative_project_path(project_path):
+    project_path = Path(project_path).resolve()
+    repo_root = get_repo_root(project_path)
+
+    return project_path.relative_to(repo_root)
+
+
+
 def main():
 	parser = argparse.ArgumentParser()
 
@@ -47,7 +67,8 @@ def main():
 
 		workspace = "$HOME/crossbuild-workspace"
 		remote_project = f"{workspace}/{repo_name}"
-		remote_app = f"{remote_project}/{project_path}"
+		relative_path = relative_path = get_relative_project_path(project_path).as_posix()
+		remote_app = f"{remote_project}/{relative_path}"
 		remote_command = f"""
 			mkdir -p {workspace} &&
 
@@ -58,7 +79,7 @@ def main():
 				git pull;
 			fi &&
 
-			cd {remote_project} &&
+			cd {remote_app} &&
 			npm install &&
 			npm run ios
 		"""
@@ -78,8 +99,8 @@ def main():
 		run_android(project_path)
 
 	elif args.platform == "ios":
-		run_ios(config)
+		run_ios(config, project_path)
 
 	elif args.platform == "all":
 		run_android(project_path)
-		run_ios(config)
+		run_ios(config, project_path)
