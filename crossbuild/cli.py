@@ -34,7 +34,7 @@ def main():
 		subprocess.run(["npm", "run", "android"],cwd=project_path,check=True)
 
 
-	def run_ios(config):
+	def run_ios(config,project_path):
 		mac = config["workers"]["macos"]
 
 		remote_login = mac["remote_login"]
@@ -47,7 +47,7 @@ def main():
 
 		workspace = "$HOME/crossbuild-workspace"
 		remote_project = f"{workspace}/{repo_name}"
-
+		remote_app = f"{remote_project}/{project_path}"
 		remote_command = f"""
 			mkdir -p {workspace} &&
 
