@@ -35,30 +35,43 @@ def main():
 
 
 	def run_ios(config):
-		mac = config["workers"]["macos"]
+	mac = config["workers"]["macos"]
 
-		remote_login = mac["remote_login"]
-		workspace = mac["workspace"]
-		repo = config["repo"]
+	remote_login = mac["remote_login"]
+	repo = config["repo"]
 
-		project_name = Path(repo).stem
+	repo_name = repo.rstrip("/").split("/")[-1]
 
-		remote_project_path = f"{workspace}/{project_name}"
+	if repo_name.endswith(".git"):
+		repo_name = repo_name[:-4]
 
-		remote_command = f"""
-			mkdir -p {shlex.quote(workspace)} &&
-			if [ ! -d {shlex.quote(remote_project_path)}/.git ]; then
-				git clone {shlex.quote(repo)} {shlex.quote(remote_project_path)};
-			else
-				cd {shlex.quote(remote_project_path)} &&
-				git pull;
-			fi &&
-			cd {shlex.quote(remote_project_path)} &&
-			npm install &&
-			npm run ios
-		"""
+	workspace = "$HOME/crossbuild-workspace"
+	remote_project = f"{workspace}/{repo_name}"
 
-		subprocess.run(["ssh",remote_login,remote_command],check=True)
+	remote_command = f"""
+		mkdir -p {workspace} &&
+
+		if [ ! -d {remote_project}/.git ]; then
+			git clone {shlex.quote(repo)} {remote_project};
+		else
+			cd {remote_project} &&
+			git pull;
+		fi &&
+
+		cd {remote_project} &&
+		npm install &&
+		npm run ios
+	"""
+
+	subprocess.run(
+		[
+			"ssh",
+			remote_login,
+			f"zsh -lc {shlex.quote(remote_command)}"
+		],
+		check=True
+	)
+		subprocess.run(["ssh",remote_login,f"zsh -lc {shlex.quote(remote_command)}"],check=True)
 
 
 	if args.platform == "android":
